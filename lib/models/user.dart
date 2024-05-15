@@ -1,27 +1,26 @@
-
 class User {
   int id;
-  String fullName;
+  String fullname;
   String email;
-  String phoneNumber;
+  String phonenumber;
   String gender;
   String password;
 
   User({
-    required this.id,
-    required this.fullName,
-    required this.email,
-    required this.phoneNumber,
-    required this.gender,
-    required this.password,
+    this.id,
+    this.fullname,
+    this.email,
+    this.phonenumber,
+    this.gender,
+    this.password,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'id': id,
-      'full_name': fullName,
+      'fullname': fullname,
       'email': email,
-      'phone_number': phoneNumber,
+      'phonenumber': phonenumber,
       'gender': gender,
       'password': password,
     };
@@ -30,9 +29,9 @@ class User {
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
       id: map['id'],
-      fullName: map['full_name'],
+      fullname: map['fullname'],
       email: map['email'],
-      phoneNumber: map['phone_number'],
+      phonenumber: map['phonenumber'],
       gender: map['gender'],
       password: map['password'],
     );

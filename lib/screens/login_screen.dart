@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'home_screen.dart';
-import '../models/user.dart';
-import '../helpers/database_helper.dart';
-import 'signup_screen.dart'; // Import the SignUpScreen if not already imported
+import 'package:flutter_application_1/screens/signup_screen.dart'; 
+import '../helpers/db_helper.dart';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -63,6 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 10), 
             GestureDetector(
               onTap: () {
+                
                 Navigator.pushNamed(context, SignupScreen.routeName);
               },
               child: Text(
@@ -81,56 +80,43 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
  void _validateAndLogin() async {
-  // Query the database to check if the user exists
- DatabaseHelper databaseHelper = DatabaseHelper.instance; 
-    String loginInput = _emailPhoneController.text;
-  User? user;
-
-  // Check if it's a valid email
-  if (RegExp(r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$').hasMatch(loginInput)) {
-    user = await databaseHelper.getUserByEmail(loginInput);
-  } else {
-    user = await databaseHelper.getUserByPhone(loginInput);
+  // Check if the user exists
+  List<Map<String, dynamic>> user = await DBHelper().getUserByEmailOrPhoneNumber(_emailPhoneController.text);
+  if (user.isEmpty) {
+    // Show alert if the user doesn't exist
+    _showAlert('User Not Found', 'The entered email/phone number is not registered.');
+    return;
   }
 
-  if (user != null) {
-    // User found, check password
-    if (user.password == _passwordController.text) {
-      // Password correct, navigate to home screen
-      Navigator.pushNamed(context, HomeScreen.routeName);
-    } else {
-      // Incorrect password
-      _showAlert('Login Error', 'Incorrect password.');
-    }
-  } else {
-    // User not found
-    _showAlert('Login Error', 'User not found. Please sign up.');
+  // Check if the password matches
+  if (user[0]['password'] != _passwordController.text) {
+    // Show alert if the password is incorrect
+    _showAlert('Incorrect Password', 'The entered password is incorrect.');
+    return;
   }
+
+  // Navigate to the home screen if everything is correct
+  Navigator.pushReplacementNamed(context, '/home');
 }
 
 
   void _showAlert(String title, String message) {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              if (title == 'Login Error' && message == 'Incorrect password.') {
-                // Clear the password field if login error is due to incorrect password
-                _passwordController.clear();
-              }
-            },
-            child: Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 }

@@ -3,9 +3,12 @@ import 'package:flutter_application_1/screens/home_screen.dart';
 import 'package:flutter_application_1/screens/login_screen.dart';
 import 'package:flutter_application_1/screens/signup_screen.dart';
 import 'package:flutter_application_1/screens/splash_screen.dart';
+import 'package:flutter_application_1/helpers/db_helper.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DBHelper().database; // Ensure database is initialized before running the app
 
-void main() {
   runApp(const MyApp());
 }
 

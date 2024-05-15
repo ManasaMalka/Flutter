@@ -10,11 +10,10 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  
   @override
   void initState() {
     super.initState();
-    
+
     Future.delayed(const Duration(seconds: 2), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => const LoginScreen()),
@@ -25,20 +24,19 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, 
+      backgroundColor: Colors.white,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-
             Image.asset(
-              'lib/assets/web-192037117.webp',
+              'assets/web-192037117.webp',
               width: 150,
               height: 150,
             ),
             SizedBox(height: 16),
             Text(
-              'My App', 
+              'My App',
               style: TextStyle(
                 fontSize: 24,
                 color: Colors.black,
@@ -51,6 +49,3 @@ class _SplashScreenState extends State<SplashScreen> {
     );
   }
 }
-
-
- 

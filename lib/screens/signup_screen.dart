@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../models/user.dart';
+import '../helpers/database_helper.dart'; // Import DatabaseHelper
 
 class SignupScreen extends StatefulWidget {
   static const String routeName = '/signup';
@@ -23,100 +25,122 @@ class _SignupScreenState extends State<SignupScreen> {
 
   String? _selectedGender;
 
+  bool _isDatabaseInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the database
+    _initDatabase();
+  }
+
+  Future<void> _initDatabase() async {
+    try {
+      // await DatabaseHelper.instance.initDatabase();
+      setState(() {
+        _isDatabaseInitialized = true;
+      });
+    } catch (e) {
+      print('Error initializing database: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Sign Up'),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Welcome!',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 20),
-              TextFormField(
-                controller: _fullNameController,
-                decoration: InputDecoration(
-                  labelText: 'Full Name',
-                  errorText: _fullNameError,
+      body: !_isDatabaseInitialized
+          ? Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome!',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 20),
+                    TextFormField(
+                      controller: _fullNameController,
+                      decoration: InputDecoration(
+                        labelText: 'Full Name',
+                        errorText: _fullNameError,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: InputDecoration(
+                        labelText: 'Email',
+                        errorText: _emailError,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _phoneNumberController,
+                      decoration: InputDecoration(
+                        labelText: 'Phone Number',
+                        errorText: _phoneNumberError,
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                    const SizedBox(height: 10),
+                    Row(
+                      children: [
+                        Text('Gender: '),
+                        Radio<String>(
+                          value: 'Male',
+                          groupValue: _selectedGender,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedGender = value;
+                              _genderError = null;
+                            });
+                          },
+                        ),
+                        Text('Male'),
+                        Radio<String>(
+                          value: 'Female',
+                          groupValue: _selectedGender,
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedGender = value;
+                              _genderError = null;
+                            });
+                          },
+                        ),
+                        Text('Female'),
+                      ],
+                    ),
+                    _genderError != null ? Text(_genderError!, style: TextStyle(color: Colors.red)) : SizedBox(),
+                    const SizedBox(height: 10),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: InputDecoration(
+                        labelText: 'Password',
+                        errorText: _passwordError,
+                      ),
+                      obscureText: true,
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        _validateAndSignUp();
+                      },
+                      child: Text('Sign Up'),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _emailController,
-                decoration: InputDecoration(
-                  labelText: 'Email',
-                  errorText: _emailError,
-                ),
-              ),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _phoneNumberController,
-                decoration: InputDecoration(
-                  labelText: 'Phone Number',
-                  errorText: _phoneNumberError,
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 10),
-              Row(
-                children: [
-                  Text('Gender: '),
-                  Radio<String>(
-                    value: 'Male',
-                    groupValue: _selectedGender,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                        _genderError = null;
-                      });
-                    },
-                  ),
-                  Text('Male'),
-                  Radio<String>(
-                    value: 'Female',
-                    groupValue: _selectedGender,
-                    onChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                        _genderError = null;
-                      });
-                    },
-                  ),
-                  Text('Female'),
-                ],
-              ),
-              _genderError != null ? Text(_genderError!, style: TextStyle(color: Colors.red)) : SizedBox(),
-              const SizedBox(height: 10),
-              TextFormField(
-                controller: _passwordController,
-                decoration: InputDecoration(
-                  labelText: 'Password',
-                  errorText: _passwordError,
-                ),
-                obscureText: true,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () {
-                  _validateAndSignUp();
-                },
-                child: Text('Sign Up'),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 
-  void _validateAndSignUp() {
+  void _validateAndSignUp() async {
     setState(() {
       _fullNameError = _validateFullName(_fullNameController.text);
       _emailError = _validateEmail(_emailController.text);
@@ -134,8 +158,32 @@ class _SignupScreenState extends State<SignupScreen> {
         _phoneNumberError == null &&
         _genderError == null &&
         _passwordError == null) {
-     
-      Navigator.pushReplacementNamed(context, '/home');
+      // Query the database to check if the email or phone number already exists
+      DatabaseHelper databaseHelper = DatabaseHelper.instance;
+      User? existingUserEmail = await databaseHelper.getUserByEmail(_emailController.text);
+      User? existingUserPhone = await databaseHelper.getUserByPhone(_phoneNumberController.text);
+
+      if (existingUserEmail != null || existingUserPhone != null) {
+        // If user already exists, display an error message
+        _showAlert('Sign Up Error', 'Email or phone number already exists. Please use a different email or phone number.');
+      } else {
+        // Create a User object with the entered data
+        User user = User(
+          id: 0,
+          fullName: _fullNameController.text,
+          email: _emailController.text,
+          phoneNumber: _phoneNumberController.text,
+          gender: _selectedGender!,
+          password: _passwordController.text,
+        );
+
+        // Insert the user into the database
+        await databaseHelper.insertUser(user);
+
+        print('User signed up successfully!');
+        // Navigate to the home screen
+        Navigator.pushReplacementNamed(context, '/home');
+      }
     }
   }
 
@@ -185,5 +233,25 @@ class _SignupScreenState extends State<SignupScreen> {
     } else {
       return null;
     }
+  }
+
+  void _showAlert(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
   }
 }

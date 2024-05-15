@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/screens/signup_screen.dart'; 
+import 'home_screen.dart';
+import '../models/user.dart';
+import '../helpers/database_helper.dart';
+import 'signup_screen.dart'; // Import the SignUpScreen if not already imported
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -60,7 +63,6 @@ class _LoginScreenState extends State<LoginScreen> {
             const SizedBox(height: 10), 
             GestureDetector(
               onTap: () {
-                
                 Navigator.pushNamed(context, SignupScreen.routeName);
               },
               child: Text(
@@ -78,73 +80,57 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  void _validateAndLogin() {
-    setState(() {
-      _emailPhoneError = _validateEmailPhone(_emailPhoneController.text);
-      _passwordError = _validatePassword(_passwordController.text);
-    });
+ void _validateAndLogin() async {
+  // Query the database to check if the user exists
+ DatabaseHelper databaseHelper = DatabaseHelper.instance; 
+    String loginInput = _emailPhoneController.text;
+  User? user;
 
-    if (_emailPhoneError == null && _passwordError == null) {
-     
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-     
-      _showAlert('Validation Error', 'Please fix the validation errors.');
-    }
+  // Check if it's a valid email
+  if (RegExp(r'^[a-zA-Z0-9.!#$%&*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\.[a-zA-Z]{2,}$').hasMatch(loginInput)) {
+    user = await databaseHelper.getUserByEmail(loginInput);
+  } else {
+    user = await databaseHelper.getUserByPhone(loginInput);
   }
 
-  String? _validateEmailPhone(String value) {
-    if (value.isEmpty) {
-      return 'Please enter your email/phone number';
+  if (user != null) {
+    // User found, check password
+    if (user.password == _passwordController.text) {
+      // Password correct, navigate to home screen
+      Navigator.pushNamed(context, HomeScreen.routeName);
     } else {
-     
-      RegExp emailPattern = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    
-      RegExp phonePattern = RegExp(r'^[0-9]{10}$');
-
-      if (!emailPattern.hasMatch(value) && !phonePattern.hasMatch(value)) {
-        return 'Please enter a valid email address or phone number';
-      }
-
-      return null;
+      // Incorrect password
+      _showAlert('Login Error', 'Incorrect password.');
     }
+  } else {
+    // User not found
+    _showAlert('Login Error', 'User not found. Please sign up.');
   }
+}
 
-  String? _validatePassword(String value) {
-    if (value.isEmpty) {
-      return 'Please enter your password';
-    } else if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    } else if (!value.contains(RegExp(r'[a-z]'))) {
-      return 'Password must contain at least one lowercase letter';
-    } else if (!value.contains(RegExp(r'[A-Z]'))) {
-      return 'Password must contain at least one uppercase letter';
-    } else if (!value.contains(RegExp(r'[0-9]'))) {
-      return 'Password must contain at least one digit';
-    } else if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      return 'Password must contain at least one special character';
-    } else {
-      return null;
-    }
-  }
 
   void _showAlert(String title, String message) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(title),
-          content: Text(message),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Text('OK'),
-            ),
-          ],
-        );
-      },
-    );
-  }
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              if (title == 'Login Error' && message == 'Incorrect password.') {
+                // Clear the password field if login error is due to incorrect password
+                _passwordController.clear();
+              }
+            },
+            child: Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
 }

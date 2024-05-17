@@ -80,6 +80,4 @@ Future<List<Map<String, dynamic>>> getUserByPhoneNumber(String phoneNumber) asyn
   }
 }
 
-
-  // Add methods for update and delete as needed
 }

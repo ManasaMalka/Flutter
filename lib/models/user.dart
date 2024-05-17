@@ -1,18 +1,18 @@
 class User {
-  int id;
-  String fullname;
-  String email;
-  String phonenumber;
-  String gender;
-  String password;
+  final int id;
+  final String fullname;
+  final String email;
+  final String phonenumber;
+  final String gender;
+  final String password;
 
   User({
-    this.id,
-    this.fullname,
-    this.email,
-    this.phonenumber,
-    this.gender,
-    this.password,
+    required this.id,
+    required this.fullname,
+    required this.email,
+    required this.phonenumber,
+    required this.gender,
+    required this.password,
   });
 
   Map<String, dynamic> toMap() {

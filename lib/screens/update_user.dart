@@ -53,7 +53,7 @@ class _UpdateUserState extends State<UpdateUser> {
       setState(() {
         _selectedGender = userDetails['gender'];
         _selectedRole = userDetails['role'];
-        // Assuming you also get the profile picture path
+      
         String? profilePicPath = userDetails['profile_pic_path'];
         if (profilePicPath != null && profilePicPath.isNotEmpty) {
           _image = File(profilePicPath);
@@ -70,12 +70,12 @@ class _UpdateUserState extends State<UpdateUser> {
       String phoneNumber = _phoneNumberController.text.trim();
       String email = _emailController.text.trim();
 
-      // All validations passed, proceed with updating user details
+     
       try {
         // Get the file path of the selected image
         String? profilePicPath = _image?.path ?? '';
 
-        // Assuming you have a method in DbHelper3 to update user details with an image path
+       
         await DbHelper3().updateUser(widget.userId, fullName, phoneNumber, email, _selectedGender, _selectedRole, profilePicPath);
         _showSuccessDialog();
       } catch (e) {

@@ -38,7 +38,7 @@ class _AddUserState extends State<AddUser> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Profile Picture Selection
+              
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -183,7 +183,7 @@ class _AddUserState extends State<AddUser> {
         _phoneNumberError == null &&
         _genderError == null &&
         _roleError == null) {
-      // All validations passed, add user to database
+     
       try {
         int userId = await DbHelper3().insertUser({
           'full_name': _fullNameController.text,

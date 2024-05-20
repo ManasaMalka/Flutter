@@ -119,7 +119,7 @@ class _SignupScreenState extends State<SignupScreen> {
 
   void _validateAndSignUp() async {
   setState(() {
-    // Validate user input
+    
     _fullNameError = _validateFullName(_fullNameController.text);
     _emailError = _validateEmail(_emailController.text);
     _phoneNumberError = _validatePhoneNumber(_phoneNumberController.text);
@@ -153,8 +153,7 @@ class _SignupScreenState extends State<SignupScreen> {
         'password': _passwordController.text,
       });
 
-      // Optionally, you can perform additional actions after inserting the user into the database
-      // For example, you can navigate to the home screen or show a success message
+    
       Navigator.pushReplacementNamed(context, '/home');
     } else {
       // Show error message for existing email

@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart'; // Add this import for SystemNavigator
-import '../helpers/db_helper3.dart'; // Assuming this is where the helper class is defined
+import 'package:flutter/services.dart'; 
+import '../helpers/db_helper3.dart'; 
 import 'package:flutter_application_1/screens/view_user.dart';
 import 'package:flutter_application_1/screens/update_user.dart';
 import 'package:flutter_application_1/screens/login_screen.dart';
@@ -16,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late Future<List<Map<String, dynamic>>> _userDataFuture;
   late List<Map<String, dynamic>> _userData;
-  Map<int, bool> _selectedItems = {}; // Map to store selected items by ID
+  Map<int, bool> _selectedItems = {};
 
   @override
   void initState() {
@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<List<Map<String, dynamic>>> _getUserData() async {
-    return DbHelper3().getUsers(); // Assuming getUsers() method fetches user data
+    return DbHelper3().getUsers(); 
   }
 
   @override
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Assuming AddUser route is defined and accessible
+          
           Navigator.pushNamed(context, '/adduser');
         },
         child: Icon(Icons.add),
@@ -270,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           TextButton(
             onPressed: () {
-              // Implement delete functionality for selected items
+              
               _deleteUsers();
               Navigator.pop(context); // Close the dialog
             },

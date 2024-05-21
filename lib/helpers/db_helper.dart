@@ -25,7 +25,11 @@ class DBHelper {
       return database;
     } catch (e) {
       print('Error initializing database: $e');
+<<<<<<< HEAD
       rethrow; 
+=======
+      rethrow;
+>>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
     }
   }
 

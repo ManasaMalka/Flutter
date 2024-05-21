@@ -22,6 +22,7 @@ class AddUser extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+<<<<<<< HEAD
               // Profile Picture Selection
               Obx(
                 () => Row(
@@ -36,6 +37,20 @@ class AddUser extends StatelessWidget {
                             : AssetImage('assets/default_profile_pic.jpg') as ImageProvider,
                         child: Icon(Icons.camera_alt, size: 40),
                       ),
+=======
+              
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: _getImage,
+                    child: CircleAvatar(
+                      radius: 60,
+                      backgroundImage: _profilePicPath != null
+                          ? FileImage(File(_profilePicPath!))
+                          : AssetImage('assets/default_profile_pic.jpg') as ImageProvider,
+                      child: Icon(Icons.camera_alt, size: 40),
+>>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
                     ),
                   ],
                 ),
@@ -169,6 +184,82 @@ class AddUser extends StatelessWidget {
       controller.setImagePath(pickedFile.path);
     }
   }
+<<<<<<< HEAD
+=======
+
+  void _validateAndAddUser() async {
+    setState(() {
+      _fullNameError = _validateFullName(_fullNameController.text);
+      _emailError = _validateEmail(_emailController.text);
+      _phoneNumberError = _validatePhoneNumber(_phoneNumberController.text);
+      _genderError = _validateGender(_gender);
+      _roleError = _validateRole(_role);
+    });
+
+    if (_fullNameError == null &&
+        _emailError == null &&
+        _phoneNumberError == null &&
+        _genderError == null &&
+        _roleError == null) {
+     
+      try {
+        int userId = await DbHelper3().insertUser({
+          'full_name': _fullNameController.text,
+          'email': _emailController.text,
+          'phone_number': _phoneNumberController.text,
+          'gender': _gender!,
+          'role': _role!,
+          'profile_pic_path': _profilePicPath,
+        });
+        print('User inserted successfully with ID: $userId');
+        Navigator.pushNamed(context, HomeScreen.routeName); // Navigate to the HomeScreen
+      } catch (e) {
+        print('Error inserting user: $e');
+      }
+    }
+  }
+
+  String? _validateFullName(String value) {
+    if (value.isEmpty) {
+      return 'Please enter full name';
+    } else if (value.length < 4 || value.length > 50) {
+      return 'Full name must be between 4 and 50 characters';
+    }
+    return null;
+  }
+
+  String? _validateEmail(String value) {
+    if (value.isEmpty) {
+      return 'Please enter email';
+    } else if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
+      return 'Please enter a valid email address';
+    }
+    return null;
+  }
+
+  String? _validatePhoneNumber(String value) {
+    if (value.isEmpty) {
+      return 'Please enter phone number';
+    } else if (value.length != 10) {
+      return 'Phone number must be 10 digits';
+    }
+    return null;
+  }
+
+  String? _validateGender(String? value) {
+    if (value == null) {
+      return 'Please select gender';
+    }
+    return null;
+  }
+
+  String? _validateRole(String? value) {
+    if (value == null) {
+      return 'Please select role';
+    }
+    return null;
+  }
+>>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
 }
 
 

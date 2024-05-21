@@ -20,8 +20,94 @@ class _UpdateUserState extends State<UpdateUser> {
   @override
   void initState() {
     super.initState();
+<<<<<<< HEAD
     controller = Get.put(UpdateUserController());
     controller.getUserDetails(widget.userId); // Fetch user details here
+=======
+    _getUserDetails();
+  }
+
+  Future<void> _getUserDetails() async {
+    try {
+      Map<String, dynamic> userDetails = await DbHelper3().getUserById(widget.userId);
+      _fullNameController.text = userDetails['full_name'];
+      _phoneNumberController.text = userDetails['phone_number'];
+      _emailController.text = userDetails['email'];
+      setState(() {
+        _selectedGender = userDetails['gender'];
+        _selectedRole = userDetails['role'];
+      
+        String? profilePicPath = userDetails['profile_pic_path'];
+        if (profilePicPath != null && profilePicPath.isNotEmpty) {
+          _image = File(profilePicPath);
+        }
+      });
+    } catch (e) {
+      print('Error fetching user details: $e');
+    }
+  }
+
+  Future<void> _updateUserDetails() async {
+    if (_formKey.currentState!.validate()) {
+      String fullName = _fullNameController.text.trim();
+      String phoneNumber = _phoneNumberController.text.trim();
+      String email = _emailController.text.trim();
+
+     
+      try {
+        // Get the file path of the selected image
+        String? profilePicPath = _image?.path ?? '';
+
+       
+        await DbHelper3().updateUser(widget.userId, fullName, phoneNumber, email, _selectedGender, _selectedRole, profilePicPath);
+        _showSuccessDialog();
+      } catch (e) {
+        print('Error updating user details: $e');
+        _showAlertDialog('Error', 'Failed to update user details. Please try again.');
+      }
+    }
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Success'),
+          content: Text('User details updated successfully.'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Navigate back to Home screen
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showAlertDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+>>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
   }
 
   @override

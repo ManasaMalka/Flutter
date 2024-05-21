@@ -1,45 +1,17 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'package:flutter/services.dart'; // Add this import for SystemNavigator
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-import '../controllers/user/user_controller.dart'; // Assuming this is where the controller is defined
-import 'view_user.dart';
-import 'update_user.dart';
-import 'login_screen.dart';
-=======
-import 'package:flutter/services.dart'; 
-import '../helpers/db_helper3.dart'; 
-import 'package:flutter_application_1/screens/view_user.dart';
-import 'package:flutter_application_1/screens/update_user.dart';
+import 'package:image_picker/image_picker.dart';
+import '../controllers/user/user_controller.dart';
 import 'package:flutter_application_1/screens/login_screen.dart';
->>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
+import 'package:flutter_application_1/screens/update_user.dart';
+import 'package:flutter_application_1/screens/view_user.dart';
+
 
 class HomeScreen extends StatelessWidget {
   static const String routeName = '/home';
-<<<<<<< HEAD
   final UserController userController = Get.put(UserController());
-=======
-
-  @override
-  _HomeScreenState createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  late Future<List<Map<String, dynamic>>> _userDataFuture;
-  late List<Map<String, dynamic>> _userData;
-  Map<int, bool> _selectedItems = {};
-
-  @override
-  void initState() {
-    super.initState();
-    _userDataFuture = _getUserData();
-  }
-
-  Future<List<Map<String, dynamic>>> _getUserData() async {
-    return DbHelper3().getUsers(); 
-  }
->>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
 
   @override
   Widget build(BuildContext context) {
@@ -143,24 +115,8 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
       ),
-<<<<<<< HEAD
     );
   }
-=======
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          
-          Navigator.pushNamed(context, '/adduser');
-        },
-        child: Icon(Icons.add),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
-    ),
-  );
-}
-
-
->>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
 
   Future<void> _showExitConfirmationDialog(BuildContext context) async {
     await showDialog(
@@ -282,12 +238,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           TextButton(
             onPressed: () {
-<<<<<<< HEAD
               userController.deleteUsers();
-=======
-              
-              _deleteUsers();
->>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
               Navigator.pop(context); // Close the dialog
             },
             child: Text('Delete'),
@@ -296,19 +247,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-<<<<<<< HEAD
-=======
-
-  void _deleteUsers() async {
-    List<int> selectedIds = _selectedItems.keys.toList();
-    for (int id in selectedIds) {
-      await DbHelper3().deleteUser(id);
-    }
-    setState(() {
-      _selectedItems.clear(); // Clear selected items
-      _userDataFuture = _getUserData(); // Refresh user data
-    });
-  }
-
->>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
 }

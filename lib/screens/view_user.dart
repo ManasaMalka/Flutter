@@ -4,7 +4,7 @@ import '../helpers/db_helper3.dart';
 
 class ViewUser extends StatefulWidget {
   static const String routeName = '/viewuser';
-  final int userId; // Declare userId as a class variable
+  final int userId; 
 
   const ViewUser({Key? key, required this.userId}) : super(key: key);
 

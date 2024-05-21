@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart'; // Import Get package
 import 'package:flutter_application_1/screens/home_screen.dart';
 import 'package:flutter_application_1/screens/login_screen.dart';
 import 'package:flutter_application_1/screens/signup_screen.dart';
@@ -22,30 +23,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp( // Use GetMaterialApp instead of MaterialApp
       title: 'Flutter Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
       initialRoute: SplashScreen.routeName, 
-      routes: {
-        SplashScreen.routeName: (context) => const SplashScreen(),
-        LoginScreen.routeName: (context) => LoginScreen(),
-        SignupScreen.routeName: (context) => SignupScreen(),
-        HomeScreen.routeName: (context) => HomeScreen(),
-        AddUser.routeName: (context) => AddUser(),
-        ViewUser.routeName: (context) {
-  final int? userId = ModalRoute.of(context)?.settings.arguments as int?;
-  return ViewUser(userId: userId ?? 0); // Assuming 0 is a suitable default value
-},
-
-
-       UpdateUser.routeName: (context) {
-  final int? userId = ModalRoute.of(context)?.settings.arguments as int?;
-  return UpdateUser(userId: userId ?? 0); // Assuming 0 is a suitable default value
-},
-      },
+      getPages: [ // Define routes using GetX GetPages
+        GetPage(name: SplashScreen.routeName, page: () => const SplashScreen()),
+        GetPage(name: LoginScreen.routeName, page: () => LoginScreen()),
+        GetPage(name: SignupScreen.routeName, page: () => SignupScreen()),
+        GetPage(name: HomeScreen.routeName, page: () => HomeScreen()),
+        GetPage(name: AddUser.routeName, page: () => AddUser()),
+        GetPage(name: ViewUser.routeName, page: () {
+          final int? userId = Get.arguments as int?;
+          return ViewUser(userId: userId ?? 0);
+        }),
+        GetPage(name: UpdateUser.routeName, page: () {
+          final int? userId = Get.arguments as int?;
+          return UpdateUser(userId: userId ?? 0);
+        }),
+      ],
     );
   }
 }

@@ -1,27 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import '../controllers/signup/signup_controller.dart';
 
-class SignupScreen extends StatefulWidget {
+class SignupScreen extends StatelessWidget {
   static const String routeName = '/signup';
 
-  const SignupScreen({Key? key}) : super(key: key);
+  final SignupController controller = Get.put(SignupController());
 
-  @override
-  _SignupScreenState createState() => _SignupScreenState();
-}
-
-class _SignupScreenState extends State<SignupScreen> {
-  final TextEditingController _fullNameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _phoneNumberController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-
-  String? _fullNameError;
-  String? _emailError;
-  String? _phoneNumberError;
-  String? _genderError;
-  String? _passwordError;
-
-  String? _selectedGender;
+  SignupScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,72 +26,71 @@ class _SignupScreenState extends State<SignupScreen> {
                 style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 20),
-              TextFormField(
-                controller: _fullNameController,
+              Obx(() => TextFormField(
+                controller: controller.fullNameController,
                 decoration: InputDecoration(
                   labelText: 'Full Name',
-                  errorText: _fullNameError,
+                  errorText: controller.fullNameError.value,
                 ),
-              ),
+              )),
               const SizedBox(height: 10),
-              TextFormField(
-                controller: _emailController,
+              Obx(() => TextFormField(
+                controller: controller.emailController,
                 decoration: InputDecoration(
                   labelText: 'Email',
-                  errorText: _emailError,
+                  errorText: controller.emailError.value,
                 ),
-              ),
+              )),
               const SizedBox(height: 10),
-              TextFormField(
-                controller: _phoneNumberController,
+              Obx(() => TextFormField(
+                controller: controller.phoneNumberController,
                 decoration: InputDecoration(
                   labelText: 'Phone Number',
-                  errorText: _phoneNumberError,
+                  errorText: controller.phoneNumberError.value,
                 ),
                 keyboardType: TextInputType.number,
-              ),
+              )),
               const SizedBox(height: 10),
               Row(
                 children: [
                   Text('Gender: '),
-                  Radio<String>(
+                  Obx(() => Radio<String>(
                     value: 'Male',
-                    groupValue: _selectedGender,
+                    groupValue: controller.selectedGender.value,
                     onChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                        _genderError = null;
-                      });
+                      controller.selectedGender.value = value;
+                      controller.genderError.value = null;
                     },
-                  ),
+                  )),
                   Text('Male'),
-                  Radio<String>(
+                  Obx(() => Radio<String>(
                     value: 'Female',
-                    groupValue: _selectedGender,
+                    groupValue: controller.selectedGender.value,
                     onChanged: (value) {
-                      setState(() {
-                        _selectedGender = value;
-                        _genderError = null;
-                      });
+                      controller.selectedGender.value = value;
+                      controller.genderError.value = null;
                     },
-                  ),
+                  )),
                   Text('Female'),
                 ],
               ),
-              _genderError != null ? Text(_genderError!, style: TextStyle(color: Colors.red)) : SizedBox(),
+              Obx(() => controller.genderError.value != null
+                  ? Text(controller.genderError.value!,
+                      style: TextStyle(color: Colors.red))
+                  : SizedBox()),
               const SizedBox(height: 10),
-              TextFormField(
-                controller: _passwordController,
+              Obx(() => TextFormField(
+                controller: controller.passwordController,
                 decoration: InputDecoration(
                   labelText: 'Password',
-                  errorText: _passwordError,
+                  errorText: controller.passwordError.value,
                 ),
                 obscureText: true,
-              ),
+              )),
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () {
-                  _validateAndSignUp();
+                  controller.validateAndSignUp();
                 },
                 child: Text('Sign Up'),
               ),
@@ -115,29 +100,92 @@ class _SignupScreenState extends State<SignupScreen> {
       ),
     );
   }
+<<<<<<< HEAD
+=======
 
-  void _validateAndSignUp() {
-    setState(() {
-      _fullNameError = _validateFullName(_fullNameController.text);
-      _emailError = _validateEmail(_emailController.text);
-      _phoneNumberError = _validatePhoneNumber(_phoneNumberController.text);
-      if (_selectedGender == null) {
-        _genderError = 'Please select a gender';
-      } else {
-        _genderError = null;
-      }
-      _passwordError = _validatePassword(_passwordController.text);
-    });
+  void _validateAndSignUp() async {
+  setState(() {
+    
+    _fullNameError = _validateFullName(_fullNameController.text);
+    _emailError = _validateEmail(_emailController.text);
+    _phoneNumberError = _validatePhoneNumber(_phoneNumberController.text);
+    if (_selectedGender == null) {
+      _genderError = 'Please select a gender';
+    } else {
+      _genderError = null;
+    }
+    _passwordError = _validatePassword(_passwordController.text);
+  });
 
-    if (_fullNameError == null &&
-        _emailError == null &&
-        _phoneNumberError == null &&
-        _genderError == null &&
-        _passwordError == null) {
-     
+  if (_fullNameError == null &&
+      _emailError == null &&
+      _phoneNumberError == null &&
+      _genderError == null &&
+      _passwordError == null) {
+    // Check if the email or phone number already exists
+    List<Map<String, dynamic>> existingEmail = await DBHelper().getUserByEmail(_emailController.text);
+    List<Map<String, dynamic>> existingPhoneNumber = await DBHelper().getUserByPhoneNumber(_phoneNumberController.text);
+
+    bool emailExists = existingEmail.isNotEmpty;
+    bool phoneNumberExists = existingPhoneNumber.isNotEmpty;
+
+    if (!emailExists && !phoneNumberExists) {
+      // Insert the new user into the database
+      int userId = await DBHelper().insertUser({
+        'full_name': _fullNameController.text,
+        'email': _emailController.text,
+        'phone_number': _phoneNumberController.text,
+        'gender': _selectedGender,
+        'password': _passwordController.text,
+      });
+
+    
       Navigator.pushReplacementNamed(context, '/home');
+    } else {
+      // Show error message for existing email
+      if (emailExists) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Sign Up Failed'),
+              content: Text('The email is already in use. Please choose a different email.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+
+      // Show error message for existing phone number
+      if (phoneNumberExists) {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Sign Up Failed'),
+              content: Text('The phone number is already in use. Please choose a different phone number.'),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     }
   }
+}
 
   String? _validateFullName(String value) {
     if (value.isEmpty) {
@@ -186,4 +234,5 @@ class _SignupScreenState extends State<SignupScreen> {
       return null;
     }
   }
+>>>>>>> ef0b4eec6deb19cbdca08f79679ffb87e68824f4
 }

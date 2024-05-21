@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_application_1/screens/signup_screen.dart'; 
+import 'package:flutter_application_1/screens/signup_screen.dart';
+import '../helpers/db_helper.dart';
+import 'dart:io';
 
 class LoginScreen extends StatefulWidget {
   static const String routeName = '/login';
@@ -18,114 +20,106 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Login'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text(
-              'Welcome!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            TextFormField(
-              controller: _emailPhoneController,
-              decoration: InputDecoration(
-                labelText: 'Email/Phone Number',
-                errorText: _emailPhoneError,
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextFormField(
-              controller: _passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                errorText: _passwordError,
-              ),
-              obscureText: true,
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _validateAndLogin();
-              },
-              child: Text('Login'),
-            ),
-            const SizedBox(height: 10), 
-            GestureDetector(
-              onTap: () {
-                
-                Navigator.pushNamed(context, SignupScreen.routeName);
-              },
-              child: Text(
-                "Don't have an Account? Sign Up",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  decoration: TextDecoration.underline,
-                ),
+    return WillPopScope(
+      onWillPop: _onBackPressed,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('Login'),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Welcome!',
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              const SizedBox(height: 20),
+              TextFormField(
+                controller: _emailPhoneController,
+                decoration: InputDecoration(
+                  labelText: 'Email/Phone Number',
+                  errorText: _emailPhoneError,
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextFormField(
+                controller: _passwordController,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  errorText: _passwordError,
+                ),
+                obscureText: true,
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _validateAndLogin();
+                },
+                child: Text('Login'),
+              ),
+              const SizedBox(height: 10),
+              GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, SignupScreen.routeName);
+                },
+                child: Text(
+                  "Don't have an Account? Sign Up",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    decoration: TextDecoration.underline,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  void _validateAndLogin() {
-    setState(() {
-      _emailPhoneError = _validateEmailPhone(_emailPhoneController.text);
-      _passwordError = _validatePassword(_passwordController.text);
-    });
-
-    if (_emailPhoneError == null && _passwordError == null) {
-     
-      Navigator.pushReplacementNamed(context, '/home');
-    } else {
-     
-      _showAlert('Validation Error', 'Please fix the validation errors.');
-    }
+  Future<bool> _onBackPressed() {
+    return showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Exit App'),
+        content: Text('Are you sure you want to exit?'),
+        actions: <Widget>[
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text('No'),
+          ),
+          TextButton(
+            onPressed: () => exit(0),
+            child: Text('Yes'),
+          ),
+        ],
+      ),
+    ).then((value) => value ?? false);
   }
 
-  String? _validateEmailPhone(String value) {
-    if (value.isEmpty) {
-      return 'Please enter your email/phone number';
-    } else {
-     
-      RegExp emailPattern = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-    
-      RegExp phonePattern = RegExp(r'^[0-9]{10}$');
-
-      if (!emailPattern.hasMatch(value) && !phonePattern.hasMatch(value)) {
-        return 'Please enter a valid email address or phone number';
-      }
-
-      return null;
+  void _validateAndLogin() async {
+    // Check if the user exists
+    List<Map<String, dynamic>> user = await DBHelper().getUserByEmailOrPhoneNumber(_emailPhoneController.text);
+    if (user.isEmpty) {
+      // Show alert if the user doesn't exist
+      _showAlert('User Not Found', 'The entered email/phone number is not registered.');
+      return;
     }
-  }
 
-  String? _validatePassword(String value) {
-    if (value.isEmpty) {
-      return 'Please enter your password';
-    } else if (value.length < 8) {
-      return 'Password must be at least 8 characters';
-    } else if (!value.contains(RegExp(r'[a-z]'))) {
-      return 'Password must contain at least one lowercase letter';
-    } else if (!value.contains(RegExp(r'[A-Z]'))) {
-      return 'Password must contain at least one uppercase letter';
-    } else if (!value.contains(RegExp(r'[0-9]'))) {
-      return 'Password must contain at least one digit';
-    } else if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'))) {
-      return 'Password must contain at least one special character';
-    } else {
-      return null;
+    // Check if the password matches
+    if (user[0]['password'] != _passwordController.text) {
+      // Show alert if the password is incorrect
+      _showAlert('Incorrect Password', 'The entered password is incorrect.');
+      return;
     }
+
+    // Navigate to the home screen if everything is correct
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   void _showAlert(String title, String message) {
